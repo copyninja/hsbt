@@ -45,6 +45,9 @@ bencList :: Parser [BVal]
 bencList = do _ <- spaces
               between (char 'l') (char 'e') (many bencVal)
 
+-- runParser bencVal () "val" "le"
+-- runParser bencVal () "val" "l4:spam4:eggse"
+
 bencVal :: Parser BVal
 bencVal = Bint <$> bencInt <|>
           Bstr <$> bencStr <|>
