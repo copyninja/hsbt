@@ -10,7 +10,7 @@ data BVal =
   | Bstr String
   | Blist [BVal]
   | Bdict (M.Map BVal BVal)
-  deriving (Show)
+  deriving (Show, Ord, Eq)
 
 ndigit :: Parser Char
 ndigit = satisfy (`elem` "123456789")
@@ -48,7 +48,19 @@ bencList = do _ <- spaces
 -- runParser bencVal () "val" "le"
 -- runParser bencVal () "val" "l4:spam4:eggse"
 
+bencDict :: Parser (M.Map BVal BVal)
+bencDict = between (char 'd') (char 'e') $ M.fromList <$> (many kvpair)
+  where kvpair = do k <- bencStr
+                    v <- bencVal
+                    return (Bstr k, v)
+
+-- runParser bencVal () "val" "d3:cow3:moo4:spam4:eggse"
+-- runParser bencVal () "val" "d4:spaml1:a1:bee"
+-- runParser bencVal () "val" "d9:publisher3:bob17:publisher-webpage15:www.example.com18:publisher.location4:homee"
+-- runParser bencVal () "val" "de"
+
 bencVal :: Parser BVal
 bencVal = Bint <$> bencInt <|>
           Bstr <$> bencStr <|>
-          Blist <$> bencList
+          Blist <$> bencList <|>
+          Bdict <$> bencDict
