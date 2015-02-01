@@ -10,7 +10,13 @@ data BVal =
   | Bstr String
   | Blist [BVal]
   | Bdict (M.Map BVal BVal)
-  deriving (Show, Ord, Eq)
+  deriving (Ord, Eq)
+
+instance Show BVal where
+  show (Bint i) = show i
+  show (Bstr s) = s
+  show (Blist xs) = show xs
+  show (Bdict m) = show (M.toList m)
 
 ndigit :: Parser Char
 ndigit = satisfy (`elem` "123456789")
@@ -64,3 +70,6 @@ bencVal = Bint <$> bencInt <|>
           Bstr <$> bencStr <|>
           Blist <$> bencList <|>
           Bdict <$> bencDict
+
+getBencVal :: String -> Either ParseError BVal
+getBencVal = runParser bencVal () "val"
